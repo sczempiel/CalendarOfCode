@@ -1,34 +1,48 @@
 package day4;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class LogEntry {
-	private Date time;
+	private String time;
+	private int hour;
+	private int minute;
 	private String event;
 
 	public static LogEntry parseString(String raw) {
 		LogEntry entry = new LogEntry();
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
 		String[] parts = raw.split("\\] ");
-		try {
-			entry.setTime(format.parse(parts[0].substring(1, parts[0].length())));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+
+		entry.setTime(parts[0].substring(1, parts[0].length()));
+		entry.setHour(Integer
+				.parseInt(entry.getTime().substring(entry.getTime().length() - 5, entry.getTime().length() - 3)));
+		entry.setMinute(
+				Integer.parseInt(entry.getTime().substring(entry.getTime().length() - 2, entry.getTime().length())));
+
 		entry.setEvent(parts[1]);
 
 		return entry;
 	}
 
-	public Date getTime() {
+	public String getTime() {
 		return time;
 	}
 
-	public void setTime(Date time) {
+	public void setTime(String time) {
 		this.time = time;
+	}
+
+	public int getHour() {
+		return hour;
+	}
+
+	public void setHour(int hour) {
+		this.hour = hour;
+	}
+
+	public int getMinute() {
+		return minute;
+	}
+
+	public void setMinute(int minute) {
+		this.minute = minute;
 	}
 
 	public String getEvent() {

@@ -1,23 +1,14 @@
 package day4;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class Shift {
 	private int guardId;
-	private List<Event> events;
+	private Integer[] awakeStatus = new Integer[60];
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Shift [guardId=");
-		builder.append(guardId);
-		builder.append(", ");
-		if (events != null) {
-			builder.append("events=");
-			builder.append(events);
-		}
-		builder.append("]");
-		return builder.toString();
+		return "Shift [guardId=" + guardId + ", awakeStatus=" + Arrays.toString(awakeStatus) + "]";
 	}
 
 	public int getGuardId() {
@@ -28,12 +19,12 @@ public class Shift {
 		this.guardId = guardId;
 	}
 
-	public List<Event> getEvents() {
-		return events;
+	public Integer[] getAwakeStatus() {
+		return awakeStatus;
 	}
 
-	public void setEvents(List<Event> events) {
-		this.events = events;
+	public void setAwakeStatus(Integer[] awakeStatus) {
+		this.awakeStatus = awakeStatus;
 	}
 
 }
