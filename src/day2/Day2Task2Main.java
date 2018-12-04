@@ -23,7 +23,7 @@ public class Day2Task2Main {
 				}
 				it.remove();
 			}
-			AdventUtils.publishResult(2, 1, result);
+			AdventUtils.publishResult(2, 2, result);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

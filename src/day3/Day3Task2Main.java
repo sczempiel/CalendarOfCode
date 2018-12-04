@@ -42,9 +42,9 @@ public class Day3Task2Main {
 			}
 
 			if (notOverlappingClaims.size() != 1) {
-				AdventUtils.publishResult(3, 1, "failure: " + notOverlappingClaims.size());
+				AdventUtils.publishResult(3, 2, "failure: " + notOverlappingClaims.size());
 			} else {
-				AdventUtils.publishResult(3, 1, new ArrayList<>(notOverlappingClaims).get(0));
+				AdventUtils.publishResult(3, 2, new ArrayList<>(notOverlappingClaims).get(0));
 			}
 
 		} catch (IOException e) {

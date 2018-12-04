@@ -1,7 +1,6 @@
 package util;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +10,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -19,9 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdventUtils {
-
-	private static final File BASE_DIR = new File(System.getProperty("user.home") + "/Desktop/adventOfCode");
-	private static final String RESULT_FILE_FORMAT = "day%d/task%d.txt";
+	private static final String RESULT_FILE_FORMAT = "result_task%d.txt";
 	private static final String INPUT_FILE_FORMAT = "day%d/input.txt";
 
 	private static Map<Integer, List<String>> inputs = new HashMap<>();
@@ -40,17 +38,13 @@ public class AdventUtils {
 	}
 
 	private static void writeResult(int day, int task, String result) throws IOException {
-		BASE_DIR.mkdir();
-
 		OutputStream out = null;
 		Writer w = null;
 
 		try {
-			File resultFile = new File(BASE_DIR, getResultFileName(day, task));
-			out = new FileOutputStream(resultFile);
+			out = new FileOutputStream(getResultFilePath(day, task));
 			w = new OutputStreamWriter(out);
 			w.write(result);
-			System.out.println("Result wrote to: " + resultFile.getAbsolutePath());
 		} finally {
 			if (w != null) {
 				w.close();
@@ -58,32 +52,24 @@ public class AdventUtils {
 		}
 	}
 
-	public static int readResult(int day, int task) throws IOException {
-		BufferedReader br = null;
+	private static String getResultFilePath(int day, int task) {
+		URL url = AdventUtils.class.getResource("../" + AdventUtils.getInputFileName(day));
+		String path = url.getPath().replaceAll("/bin/", "/src/");
+		path = path.substring(0, path.lastIndexOf("/") + 1);
 
-		try {
-			br = getBufferedReader(new File(BASE_DIR, getResultFileName(day, task)));
-			return Integer.valueOf(br.readLine());
-		} finally {
-			if (br != null) {
-				br.close();
-			}
-		}
-	}
-
-	private static String getResultFileName(int day, int task) {
 		StringBuilder sb = new StringBuilder();
 		Formatter formatter = new Formatter(sb);
-		formatter.format(RESULT_FILE_FORMAT, day, task);
+		formatter.format(RESULT_FILE_FORMAT, task);
 		formatter.close();
-		return sb.toString();
+		return path + sb.toString();
 	}
 
-	public static BufferedReader getBufferedReader(File file) throws IOException {
+	public static BufferedReader getBufferedReader(int day) throws IOException {
 		InputStream in = null;
 		Reader r = null;
 
-		in = new FileInputStream(file);
+		URL url = AdventUtils.class.getResource("../" + AdventUtils.getInputFileName(day));
+		in = new FileInputStream(url.getPath().replaceAll("/bin/", "/src/"));
 		r = new InputStreamReader(in);
 		return new BufferedReader(r);
 	}
@@ -100,7 +86,7 @@ public class AdventUtils {
 		if (input == null) {
 			BufferedReader br = null;
 			try {
-				br = getBufferedReader(new File(BASE_DIR, getInputFileName(day)));
+				br = getBufferedReader(day);
 				List<String> result = br.lines().collect(Collectors.toList());
 				input = Collections.unmodifiableList(result);
 				inputs.put(day, input);

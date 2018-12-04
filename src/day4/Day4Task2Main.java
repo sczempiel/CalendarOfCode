@@ -106,7 +106,7 @@ public class Day4Task2Main {
 				}
 			}
 
-			AdventUtils.publishResult(4, 1, mostSleepyGuard * mostSleepyGuardMinute);
+			AdventUtils.publishResult(4, 2, mostSleepyGuard * mostSleepyGuardMinute);
 
 		} catch (IOException e) {
 			e.printStackTrace();
