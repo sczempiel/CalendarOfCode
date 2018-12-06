@@ -1,4 +1,4 @@
-package day2;
+package util;
 
 public class Touple<R, L> {
 	private R right;

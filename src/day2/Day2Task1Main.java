@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import util.AdventUtils;
+import util.Touple;
 
 public class Day2Task1Main {
 
