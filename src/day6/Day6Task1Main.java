@@ -101,7 +101,7 @@ public class Day6Task1Main {
 						continue;
 					}
 					int key = Integer.parseInt(cord.replaceAll("_", ""));
-					if (y == 0 || x == 0 || y == endY - 1 || x == endX - 1) {
+					if (y == 0 || x == 0 || y == endY || x == endX) {
 						blackList.add(key);
 						continue;
 					}
