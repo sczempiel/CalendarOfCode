@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdventUtils {
+	private static final String EXTRA_FILE_FORMAT = "extra_task%d_%s.txt";
 	private static final String RESULT_FILE_FORMAT = "result_task%d.txt";
 	private static final String INPUT_FILE_FORMAT = "day%d/input.txt";
 
@@ -34,15 +35,19 @@ public class AdventUtils {
 
 	public static void publishResult(int day, int task, String result) throws IOException {
 		System.out.println(result);
-		writeResult(day, task, result);
+		writeFile(result, getResultFilePath(day, task));
 	}
 
-	private static void writeResult(int day, int task, String result) throws IOException {
+	public static void writeExtra(int day, int task, String result, String extraName) throws IOException {
+		writeFile(result, getExtraFilePath(day, task, extraName));
+	}
+
+	private static void writeFile(String result, String filePath) throws IOException {
 		OutputStream out = null;
 		Writer w = null;
 
 		try {
-			out = new FileOutputStream(getResultFilePath(day, task));
+			out = new FileOutputStream(filePath);
 			w = new OutputStreamWriter(out);
 			w.write(result);
 		} finally {
@@ -52,14 +57,28 @@ public class AdventUtils {
 		}
 	}
 
-	private static String getResultFilePath(int day, int task) {
+	private static String getResultFilePath(int day) {
 		URL url = AdventUtils.class.getResource("../" + AdventUtils.getInputFileName(day));
 		String path = url.getPath().replaceAll("/bin/", "/src/");
-		path = path.substring(0, path.lastIndexOf("/") + 1);
+		return path.substring(0, path.lastIndexOf("/") + 1);
+	}
+
+	private static String getResultFilePath(int day, int task) {
+		String path = getResultFilePath(day);
 
 		StringBuilder sb = new StringBuilder();
 		Formatter formatter = new Formatter(sb);
 		formatter.format(RESULT_FILE_FORMAT, task);
+		formatter.close();
+		return path + sb.toString();
+	}
+
+	private static String getExtraFilePath(int day, int task, String extraName) {
+		String path = getResultFilePath(day);
+
+		StringBuilder sb = new StringBuilder();
+		Formatter formatter = new Formatter(sb);
+		formatter.format(EXTRA_FILE_FORMAT, task, extraName);
 		formatter.close();
 		return path + sb.toString();
 	}

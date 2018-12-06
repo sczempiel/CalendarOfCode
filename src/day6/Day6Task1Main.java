@@ -126,7 +126,7 @@ public class Day6Task1Main {
 				}
 			}
 
-			// printGrid(grid);
+			printGrid(grid);
 
 			AdventUtils.publishResult(6, 1, maxSize);
 
@@ -135,8 +135,7 @@ public class Day6Task1Main {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static void printGrid(String[][] grid) {
+	private static void printGrid(String[][] grid) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < grid.length; y++) {
 			for (int x = 0; x < grid[y].length; x++) {
@@ -158,7 +157,8 @@ public class Day6Task1Main {
 			}
 			sb.append("\n");
 		}
-		System.out.println(sb.toString());
+
+		AdventUtils.writeExtra(6, 1, sb.toString(), "grid");
 	}
 
 }

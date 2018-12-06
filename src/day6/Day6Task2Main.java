@@ -66,8 +66,12 @@ public class Day6Task2Main {
 
 					int total = dists.stream().mapToInt(Integer::intValue).sum();
 					if (total < 10000) {
-						grid[y][x] = "#";
-					} else {
+						if (grid[y][x] != null) {
+							grid[y][x] = grid[y][x].replace("_", "#");
+						} else {
+							grid[y][x] = "#";
+						}
+					} else if (grid[y][x] == null) {
 						grid[y][x] = ".";
 					}
 				}
@@ -78,13 +82,13 @@ public class Day6Task2Main {
 			for (int y = 0; y < largestY; y++) {
 				for (int x = 0; x < largestX; x++) {
 					String cord = grid[y][x];
-					if (cord.equals("#")) {
+					if (cord.startsWith("#")) {
 						maxSize++;
 					}
 				}
 			}
 
-			// printGrid(grid);
+			printGrid(grid);
 
 			AdventUtils.publishResult(6, 2, maxSize);
 
@@ -93,8 +97,7 @@ public class Day6Task2Main {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static void printGrid(String[][] grid) {
+	private static void printGrid(String[][] grid) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < grid.length; y++) {
 			for (int x = 0; x < grid[y].length; x++) {
@@ -102,11 +105,13 @@ public class Day6Task2Main {
 					if (grid[y][x].equals(".")) {
 						sb.append("... ");
 					} else {
-						sb.append("00" + grid[y][x] + " ");
+						sb.append("### ");
 					}
 				} else if (grid[y][x].length() == 2) {
 					if (grid[y][x].startsWith("_")) {
 						sb.append("_" + grid[y][x].replaceAll("_", "0") + " ");
+					} else if (grid[y][x].startsWith("_")) {
+						sb.append("#" + grid[y][x].replaceAll("#", "0") + " ");
 					} else {
 						sb.append("0" + grid[y][x] + " ");
 					}
@@ -116,7 +121,8 @@ public class Day6Task2Main {
 			}
 			sb.append("\n");
 		}
-		System.out.println(sb.toString());
+
+		AdventUtils.writeExtra(6, 2, sb.toString(), "grid");
 	}
 
 }
