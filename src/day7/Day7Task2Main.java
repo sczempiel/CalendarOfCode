@@ -46,7 +46,7 @@ public class Day7Task2Main {
 			final StringBuilder sbTree = new StringBuilder();
 			items.values().stream().forEach(tree -> sbTree.append(tree.toString() + "\n"));
 
-			AdventUtils.publishExtra(7, 2, sbTree.toString(), "tree");
+			AdventUtils.writeExtra(7, 2, sbTree.toString(), "tree");
 
 			root.getChilds().addAll(
 					items.values().stream().filter(item -> item.getParents().isEmpty()).collect(Collectors.toList()));
@@ -107,8 +107,8 @@ public class Day7Task2Main {
 			}
 			sbSteps.append(" " + sbOrder.toString());
 
-			AdventUtils.publishExtra(7, 2, sbSteps.toString(), "steps");
-			AdventUtils.publishExtra(7, 2, sbOrder.toString(), "order");
+			AdventUtils.writeExtra(7, 2, sbSteps.toString(), "steps");
+			AdventUtils.writeExtra(7, 2, sbOrder.toString(), "order");
 			AdventUtils.publishResult(7, 2, total);
 		} catch (IOException e) {
 			e.printStackTrace();
