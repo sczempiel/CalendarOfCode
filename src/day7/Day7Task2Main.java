@@ -43,14 +43,18 @@ public class Day7Task2Main {
 			Tree root = new Tree();
 			root.setState(State.finish);
 
-			items.values().stream().forEach(tree -> System.out.println(tree.toString()));
+			final StringBuilder sbTree = new StringBuilder();
+			items.values().stream().forEach(tree -> sbTree.append(tree.toString() + "\n"));
+
+			AdventUtils.publishExtra(7, 2, sbTree.toString(), "tree");
 
 			root.getChilds().addAll(
 					items.values().stream().filter(item -> item.getParents().isEmpty()).collect(Collectors.toList()));
 
 			Tree result = getNext(root, null);
 
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sbSteps = new StringBuilder();
+			StringBuilder sbOrder = new StringBuilder();
 
 			Worker[] workers = new Worker[5];
 			workers[0] = new Worker();
@@ -60,10 +64,10 @@ public class Day7Task2Main {
 			workers[4] = new Worker();
 
 			int total = 1;
-			while (sb.length() < 26) {
+			while (sbOrder.length() < 26) {
 				total++;
 
-				String currentlyFinished = sb.toString();
+				String currentlyFinished = sbOrder.toString();
 
 				for (Worker worker : workers) {
 					if (worker.isAvailable()) {
@@ -75,7 +79,7 @@ public class Day7Task2Main {
 						}
 					}
 					if (worker.updateWorkForce()) {
-						sb.append(worker.getCurrentItem().getKey());
+						sbOrder.append(worker.getCurrentItem().getKey());
 					}
 				}
 				for (Worker worker : workers) {
@@ -85,17 +89,18 @@ public class Day7Task2Main {
 					}
 				}
 
-				printWorker(workers[0]);
-				printWorker(workers[1]);
-				printWorker(workers[2]);
-				printWorker(workers[3]);
-				printWorker(workers[4]);
-				System.out.println(total - 1 + " " + currentlyFinished);
+				printWorker(workers[0], sbSteps);
+				printWorker(workers[1], sbSteps);
+				printWorker(workers[2], sbSteps);
+				printWorker(workers[3], sbSteps);
+				printWorker(workers[4], sbSteps);
+				sbSteps.append(total - 1 + " " + currentlyFinished + "\n");
 			}
 
-			System.out.println(" .  .  .  .  . " + total + " " + sb.toString());
+			sbSteps.append(" .  .  .  .  . " + total + " " + sbOrder.toString());
 
-			AdventUtils.publishExtra(7, 2, sb.toString(), "order");
+			AdventUtils.publishExtra(7, 2, sbSteps.toString(), "steps");
+			AdventUtils.publishExtra(7, 2, sbOrder.toString(), "order");
 			AdventUtils.publishResult(7, 2, total);
 		} catch (
 
@@ -104,12 +109,12 @@ public class Day7Task2Main {
 		}
 	}
 
-	private static void printWorker(Worker worker) {
+	private static void printWorker(Worker worker, StringBuilder sb) {
 		Tree item = worker.getCurrentItem();
 		if (item == null) {
-			System.out.print(" . ");
+			sb.append(" . ");
 		} else {
-			System.out.print(" " + worker.getCurrentItem().getKey() + " ");
+			sb.append(" " + worker.getCurrentItem().getKey() + " ");
 		}
 	}
 
