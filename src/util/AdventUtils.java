@@ -38,6 +38,11 @@ public class AdventUtils {
 		writeFile(result, getResultFilePath(day, task));
 	}
 
+	public static void publishExtra(int day, int task, String result, String extraName) throws IOException {
+		System.out.println(result);
+		writeExtra(day, task, result, extraName);
+	}
+
 	public static void writeExtra(int day, int task, String result, String extraName) throws IOException {
 		writeFile(result, getExtraFilePath(day, task, extraName));
 	}
