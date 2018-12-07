@@ -57,14 +57,18 @@ public class Day7Task2Main {
 			StringBuilder sbOrder = new StringBuilder();
 
 			Worker[] workers = new Worker[5];
-			workers[0] = new Worker();
-			workers[1] = new Worker();
-			workers[2] = new Worker();
-			workers[3] = new Worker();
-			workers[4] = new Worker();
 
-			int total = 1;
-			while (sbOrder.length() < 26) {
+			sbSteps.append("time |");
+
+			for (int i = 0; i < workers.length; i++) {
+				workers[i] = new Worker(i);
+				sbSteps.append(" w" + i + "|");
+			}
+
+			sbSteps.append(" finished\n-----+---+---+---+---+---+--------------\n");
+
+			int total = 0;
+			while (sbOrder.length() < items.size()) {
 				total++;
 
 				String currentlyFinished = sbOrder.toString();
@@ -88,33 +92,43 @@ public class Day7Task2Main {
 						break;
 					}
 				}
+				sbSteps.append(formatNumber(total - 1) + " |");
 
-				printWorker(workers[0], sbSteps);
-				printWorker(workers[1], sbSteps);
-				printWorker(workers[2], sbSteps);
-				printWorker(workers[3], sbSteps);
-				printWorker(workers[4], sbSteps);
-				sbSteps.append(total - 1 + " " + currentlyFinished + "\n");
+				for (int i = 0; i < workers.length; i++) {
+					printWorker(workers[i], sbSteps);
+				}
+
+				sbSteps.append(" " + currentlyFinished + "\n");
 			}
+			sbSteps.append(formatNumber(total) + " |");
 
-			sbSteps.append(" .  .  .  .  . " + total + " " + sbOrder.toString());
+			for (int i = 0; i < workers.length; i++) {
+				sbSteps.append(" . |");
+			}
+			sbSteps.append(" " + sbOrder.toString());
 
 			AdventUtils.publishExtra(7, 2, sbSteps.toString(), "steps");
 			AdventUtils.publishExtra(7, 2, sbOrder.toString(), "order");
 			AdventUtils.publishResult(7, 2, total);
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static String formatNumber(int num) {
+		String result = String.valueOf(num);
+		while (result.length() < 4) {
+			result = " " + result;
+		}
+		return result;
 	}
 
 	private static void printWorker(Worker worker, StringBuilder sb) {
 		Tree item = worker.getCurrentItem();
 		if (item == null) {
-			sb.append(" . ");
+			sb.append(" . |");
 		} else {
-			sb.append(" " + worker.getCurrentItem().getKey() + " ");
+			sb.append(" " + worker.getCurrentItem().getKey() + " |");
 		}
 	}
 

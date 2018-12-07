@@ -4,19 +4,26 @@ import day7.Tree.State;
 
 public class Worker {
 
+	private static final int MINUTE = 60;
+
+	private final int id;
 	private Tree currentItem;
 	private int secoundsWorked;
 	private int secoundsNeeded;
+
+	public Worker(int id) {
+		this.id = id;
+	}
 
 	public void updateCurrentItem(Tree item) {
 		currentItem = item;
 		if (item != null) {
 			currentItem.setState(State.working);
-			secoundsNeeded = 60 + Character.getNumericValue(item.getKey()) - Character.getNumericValue('A') + 1;
+			secoundsNeeded = MINUTE + Character.getNumericValue(item.getKey()) - Character.getNumericValue('A') + 1;
 		} else {
-			secoundsNeeded = 60;
+			secoundsNeeded = MINUTE;
 		}
-		secoundsWorked = 1;
+		secoundsWorked = 0;
 	}
 
 	public boolean updateWorkForce() {
@@ -33,6 +40,10 @@ public class Worker {
 
 	public boolean isAvailable() {
 		return currentItem == null || currentItem.getState() == State.finish;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public Tree getCurrentItem() {
