@@ -1,8 +1,11 @@
 package util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 public class AdventUtils {
 	private static final String EXTRA_FILE_FORMAT = "extra_task%d_%s.txt";
 	private static final String RESULT_FILE_FORMAT = "result_task%d.txt";
-	private static final String INPUT_FILE_FORMAT = "day%d/input.txt";
+	private static final String INPUT_FILE_FORMAT = "day%s/input.txt";
 
 	private static Map<Integer, List<String>> inputs = new HashMap<>();
 
@@ -45,6 +48,22 @@ public class AdventUtils {
 
 	public static void writeExtra(int day, int task, String result, String extraName) throws IOException {
 		writeFile(result, getExtraFilePath(day, task, extraName));
+	}
+
+	public static void eraseExtraFile(int day, int task, String extraName) throws IOException {
+		writeExtra(day, task, "", extraName);
+	}
+
+	public static void writeNewExtraLine(int day, int task, String result, String extraName) throws IOException {
+		Writer w = null;
+		try {
+			w = new BufferedWriter(new FileWriter(new File(getExtraFilePath(day, task, extraName)), true));
+			w.write(result);
+		} finally {
+			if (w != null) {
+				w.close();
+			}
+		}
 	}
 
 	private static void writeFile(String result, String filePath) throws IOException {
@@ -126,9 +145,17 @@ public class AdventUtils {
 	private static String getInputFileName(int day) {
 		StringBuilder sb = new StringBuilder();
 		Formatter formatter = new Formatter(sb);
-		formatter.format(INPUT_FILE_FORMAT, day);
+		formatter.format(INPUT_FILE_FORMAT, printNum(day, 2));
 		formatter.close();
 		return sb.toString();
+	}
+
+	public static String printNum(int num, int length) {
+		String formated = String.valueOf(num);
+		while (formated.length() < length) {
+			formated = "0" + formated;
+		}
+		return formated;
 	}
 
 }
