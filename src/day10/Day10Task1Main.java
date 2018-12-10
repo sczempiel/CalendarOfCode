@@ -15,7 +15,6 @@ public class Day10Task1Main {
 					.collect(Collectors.toList());
 
 			boolean unresolved = true;
-			StringBuilder sb = null;
 			Integer minX = null;
 			Integer maxX = null;
 			Integer minY = null;
@@ -90,7 +89,7 @@ public class Day10Task1Main {
 				grid[y][x] = true;
 			}
 
-			sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
 					if (grid[y][x]) {
