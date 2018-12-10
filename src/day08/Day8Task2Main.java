@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import day09.Node;
 import util.AdventUtils;
 
 public class Day8Task2Main {

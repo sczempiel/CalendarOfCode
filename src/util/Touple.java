@@ -1,14 +1,14 @@
 package util;
 
 public class Touple<R, L> {
-	private R right;
 	private L left;
+	private R right;
 
 	public Touple() {
 
 	}
 
-	public Touple(R right, L left) {
+	public Touple(L left, R right) {
 		this.right = right;
 		this.left = left;
 	}

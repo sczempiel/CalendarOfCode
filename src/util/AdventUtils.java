@@ -38,6 +38,10 @@ public class AdventUtils {
 
 	public static void publishResult(int day, int task, String result) throws IOException {
 		System.out.println(result);
+		writeResult(day, task, result);
+	}
+
+	public static void writeResult(int day, int task, String result) throws IOException {
 		writeFile(result, getResultFilePath(day, task));
 	}
 

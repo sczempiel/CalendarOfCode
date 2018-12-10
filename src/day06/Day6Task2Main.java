@@ -18,7 +18,7 @@ public class Day6Task2Main {
 		try {
 			List<Touple<Integer, Integer>> input = AdventUtils.getStringInput(6).stream().map(line -> {
 				String[] splitted = line.split(", ");
-				return new Touple<Integer, Integer>(Integer.parseInt(splitted[1]), Integer.parseInt(splitted[0]));
+				return new Touple<Integer, Integer>(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1]));
 			}).sorted((c1, c2) -> {
 				if (c1.getLeft() - c2.getLeft() == 0) {
 					return c1.getRight() - c2.getRight();
