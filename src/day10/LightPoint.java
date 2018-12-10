@@ -31,4 +31,9 @@ public class LightPoint {
 	public void setVelocity(Point velocity) {
 		this.velocity = velocity;
 	}
+
+	@Override
+	public String toString() {
+		return "LightPoint [position=" + position + ", velocity=" + velocity + "]";
+	}
 }

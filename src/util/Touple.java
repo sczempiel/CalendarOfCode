@@ -29,4 +29,9 @@ public class Touple<R, L> {
 		this.left = left;
 	}
 
+	@Override
+	public String toString() {
+		return "Touple [left=" + left + ", right=" + right + "]";
+	}
+
 }
