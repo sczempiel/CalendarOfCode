@@ -155,9 +155,21 @@ public class AdventUtils {
 	}
 
 	public static String printNum(int num, int length) {
-		String formated = String.valueOf(num);
+		String formated = "";
+		
+		if (num < 0) {
+			formated = String.valueOf(Math.abs(num));
+			length--;
+		} else {
+			formated = String.valueOf(num);
+		}
+
 		while (formated.length() < length) {
 			formated = "0" + formated;
+		}
+
+		if (num < 0) {
+			formated = "-" + formated;
 		}
 		return formated;
 	}
