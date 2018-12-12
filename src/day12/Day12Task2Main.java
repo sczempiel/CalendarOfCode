@@ -7,7 +7,6 @@ import java.util.List;
 import util.AdventUtils;
 
 public class Day12Task2Main {
-
 	private static final long GENERATIONS = 50000000000l;
 
 	public static void main(String[] args) {
@@ -22,19 +21,12 @@ public class Day12Task2Main {
 
 			String initialPots = input.get(0).split(": ")[1];
 
-			long potPos = -3 * GENERATIONS;
-			long maxPotPos = 3 * GENERATIONS + initialPots.length();
-			while (potPos < 0) {
-				currentGen.add(new Pot(potPos++, false));
-			}
+			int potPos = 0;
 			for (char initial : initialPots.toCharArray()) {
 				Pot pot = new Pot();
 				pot.setPosition(potPos++);
 				pot.setPlanted(isPlanted(initial));
 				currentGen.add(pot);
-			}
-			while (potPos < maxPotPos) {
-				currentGen.add(new Pot(potPos++, false));
 			}
 
 			for (int i = 2; i < input.size(); i++) {
@@ -49,10 +41,21 @@ public class Day12Task2Main {
 				rules[i - 2] = rule;
 			}
 
-			printPlants(currentGen);
+			long growth = 0;
 
 			for (int i = 0; i < GENERATIONS; i++) {
-				lastGen = currentGen;
+				lastGen = new ArrayList<>();
+
+				potPos = currentGen.get(0).getPosition() - 3;
+				while (potPos < 0) {
+					lastGen.add(new Pot(potPos++, false));
+				}
+				lastGen.addAll(currentGen);
+				int maxPotPos = currentGen.get(currentGen.size() - 1).getPosition() + 4;
+				potPos = maxPotPos - 3;
+				while (potPos < maxPotPos) {
+					lastGen.add(new Pot(potPos++, false));
+				}
 				currentGen = new ArrayList<>();
 
 				for (int j = 0; j < lastGen.size(); j++) {
@@ -84,43 +87,78 @@ public class Day12Task2Main {
 					} else {
 						twoRight = false;
 					}
+					boolean matched = false;
 					for (Rule rule : rules) {
 						if (rule.isTwoLeft() == twoLeft && rule.isLeft() == left
 								&& rule.isToCheck() == lastGenPot.isPlanted() && rule.isRight() == right
 								&& rule.isTwoRight() == twoRight) {
 							pot.setPlanted(rule.isOutcome());
+							matched = true;
 							break;
 						}
 					}
+					if (!matched) {
+						throw new IllegalStateException();
+					}
 					currentGen.add(pot);
 				}
-				printPlants(currentGen);
+
+				Integer move = checkMove(lastGen, currentGen);
+				if (move != null) {
+					growth = move * (GENERATIONS - (i + 1));
+					break;
+				}
 			}
 
-			int sum = 0;
+			Long sum = 0l;
 			for (Pot pot : currentGen) {
 				if (pot.isPlanted()) {
 					sum += pot.getPosition();
+					sum += growth;
 				}
 			}
 
-			AdventUtils.publishResult(12, 2, sum);
+			AdventUtils.publishResult(12, 2, sum.toString());
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void printPlants(List<Pot> pots) {
-		StringBuilder sb = new StringBuilder();
-		for (Pot pot : pots) {
-			if (pot.isPlanted()) {
-				sb.append("#");
-			} else {
-				sb.append(".");
+	private static Integer checkMove(List<Pot> last, List<Pot> current) {
+		Integer firstLast = null;
+		Integer lastLast = null;
+		Integer firstCurrent = null;
+		Integer lastCurrent = null;
+		for (int i = 0; i < last.size(); i++) {
+			if (last.get(i).isPlanted() && firstLast == null) {
+				firstLast = i;
+			}
+			if (last.get(i).isPlanted()) {
+				lastLast = i;
 			}
 		}
-		System.out.println(sb.toString());
+
+		for (int i = 0; i < current.size(); i++) {
+			if (current.get(i).isPlanted() && firstCurrent == null) {
+				firstCurrent = i;
+			}
+			if (current.get(i).isPlanted()) {
+				lastCurrent = i;
+			}
+		}
+
+		if (firstLast - lastLast != firstCurrent - lastCurrent) {
+			return null;
+		}
+
+		for (int i = firstLast; i <= lastLast; i++) {
+			if (last.get(i).isPlanted() != current.get(i + firstCurrent - firstLast).isPlanted()) {
+				return null;
+			}
+		}
+
+		return current.get(firstCurrent).getPosition() - last.get(firstLast).getPosition();
 	}
 
 	private static boolean isPlanted(char pot) {
