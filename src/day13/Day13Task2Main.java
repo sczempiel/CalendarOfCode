@@ -44,7 +44,7 @@ public class Day13Task2Main {
 					if (crashPosition != null) {
 						cart.setRemoved(true);
 						for (Cart crashedInto : carts) {
-							if (crashPosition.equals(crashedInto.getPosition())) {
+							if (crashedInto != cart && crashPosition.equals(crashedInto.getPosition())) {
 								crashedInto.setRemoved(true);
 								grid[crashPosition.getLeft()][crashPosition.getRight()] = crashedInto.getTileBelow();
 								break;
