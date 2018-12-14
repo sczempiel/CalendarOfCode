@@ -69,6 +69,11 @@ public class AdventUtils {
 			}
 		}
 	}
+	
+	public static void publishNewExtraLine(int day, int task, String result, String extraName) throws IOException {
+		System.out.print(result);
+		writeNewExtraLine(day, task, result, extraName);
+	}
 
 	private static void writeFile(String result, String filePath) throws IOException {
 		OutputStream out = null;
