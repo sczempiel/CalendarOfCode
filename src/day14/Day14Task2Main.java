@@ -13,12 +13,19 @@ public class Day14Task2Main {
 	public static void main(String[] args) {
 
 		try {
+			long start = System.currentTimeMillis();
+			
+			char[] input = AdventUtils.getStringInput(14).get(0).toCharArray();
+			int lengthTerm = input.length;
+			int[] termination = new int[lengthTerm];
 
-			char[] termination = AdventUtils.getStringInput(14).get(0).toCharArray();
-			int lengthTerm = termination.length;
-			List<Character> scores = new ArrayList<>(10000000);
-			scores.add('3');
-			scores.add('7');
+			for (int i = 0; i < lengthTerm; i++) {
+				termination[i] = Integer.parseInt(String.valueOf(input[i]));
+			}
+
+			List<Integer> scores = new ArrayList<>();
+			scores.add(3);
+			scores.add(7);
 
 			int elv1 = 0;
 			int elv2 = 1;
@@ -27,16 +34,20 @@ public class Day14Task2Main {
 
 			int iterations = 0;
 
-			long start = System.currentTimeMillis();
 			while (count == -1) {
 
-				int current1 = charToInt(scores.get(elv1));
-				int current2 = charToInt(scores.get(elv2));
+				int current1 = scores.get(elv1);
+				int current2 = scores.get(elv2);
 
-				int added = 0;
-				for (char digit : String.valueOf(current1 + current2).toCharArray()) {
-					scores.add(digit);
+				int score = current1 + current2;
+				int added = 1;
+
+				if (score > 9) {
+					scores.add(1);
+					scores.add(score - 10);
 					added++;
+				} else {
+					scores.add(score);
 				}
 				int length = scores.size();
 
@@ -58,6 +69,7 @@ public class Day14Task2Main {
 
 						if (match) {
 							count = scoresPointer;
+							break;
 						}
 					}
 				}
@@ -82,9 +94,5 @@ public class Day14Task2Main {
 			index -= length;
 		}
 		return index;
-	}
-
-	private static int charToInt(char digit) {
-		return Integer.parseInt(String.valueOf(digit));
 	}
 }
