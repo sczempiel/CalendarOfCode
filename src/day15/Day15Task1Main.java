@@ -1,14 +1,12 @@
 package day15;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -219,13 +217,21 @@ public class Day15Task1Main {
 	private static Move calculateMove(Fighter fighter) {
 		Tile currentTile = fighter.getTile();
 
+		Integer steps = getStepsToAnyEnemy(currentTile.getY(), currentTile.getX(), !fighter.isGoblin(), 0,
+				new ArrayList<>());
+
+		if (steps == null) {
+			return null;
+		}
+
 		Move directMove = tryDirectPath(fighter);
 		if (directMove != null) {
 			return directMove;
 		}
-
-		Turn turn = findPossibleTiles(currentTile.getY(), currentTile.getX(), !fighter.isGoblin(), 0,
-				new Turn(fighter, currentTile), new ArrayList<>(), new ArrayList<>());
+		Turn turn = new Turn(fighter, currentTile);
+		turn.setShortestSteps(steps);
+		turn = findPossibleTiles(currentTile.getY(), currentTile.getX(), !fighter.isGoblin(), 0, turn,
+				new ArrayList<>(), new ArrayList<>());
 
 		if (turn.getPaths().isEmpty()) {
 			return null;
@@ -268,6 +274,47 @@ public class Day15Task1Main {
 
 		return bestMoves.get(0);
 
+	}
+
+	private static Integer getStepsToAnyEnemy(int y, int x, boolean enemyIsGoblin, int currentSteps,
+			List<Tile> visitedTiles) {
+		if (visitedTiles.contains(tiles[y][x])) {
+			return null;
+		}
+		visitedTiles.add(tiles[y][x]);
+
+		if (!getNearEnemies(y, x, enemyIsGoblin).isEmpty()) {
+			return currentSteps;
+		} else {
+			currentSteps++;
+
+			if (y - 1 > 0 && tiles[y - 1][x].canWalkOnto()) {
+				Integer steps = getStepsToAnyEnemy(y - 1, x, enemyIsGoblin, currentSteps, visitedTiles);
+				if (steps != null) {
+					return steps;
+				}
+			}
+			if (x - 1 > 0 && tiles[y][x - 1].canWalkOnto()) {
+				Integer steps = getStepsToAnyEnemy(y, x - 1, enemyIsGoblin, currentSteps, visitedTiles);
+				if (steps != null) {
+					return steps;
+				}
+			}
+			if (x + 1 < tiles[y].length && tiles[y][x + 1].canWalkOnto()) {
+				Integer steps = getStepsToAnyEnemy(y, x + 1, enemyIsGoblin, currentSteps, visitedTiles);
+				if (steps != null) {
+					return steps;
+				}
+			}
+			if (y + 1 < tiles.length && tiles[y + 1][x].canWalkOnto()) {
+				Integer steps = getStepsToAnyEnemy(y + 1, x, enemyIsGoblin, currentSteps, visitedTiles);
+				if (steps != null) {
+					return steps;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private static Move tryDirectPath(Fighter fighter) {
