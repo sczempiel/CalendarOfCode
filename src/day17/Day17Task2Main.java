@@ -5,7 +5,7 @@ import java.util.List;
 
 import util.AdventUtils;
 
-public class Day13Task2Main {
+public class Day17Task2Main {
 
 	public static void main(String[] args) {
 
