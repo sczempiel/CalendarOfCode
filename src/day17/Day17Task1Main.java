@@ -16,6 +16,7 @@ public class Day17Task1Main {
 
 	private static int minX = 500;
 	private static int maxX = 500;
+	private static Integer minY = null;
 	private static Integer maxY = null;
 	private static char[][] grid;
 
@@ -62,7 +63,7 @@ public class Day17Task1Main {
 
 			printGrid();
 
-			for (int y = 1; y < grid.length; y++) {
+			for (int y = minY; y < grid.length; y++) {
 				for (int x = 0; x < grid[y].length; x++) {
 					if (grid[y][x] == '~' || grid[y][x] == '|') {
 						waterCount++;
@@ -174,6 +175,9 @@ public class Day17Task1Main {
 		}
 		if (x > maxX) {
 			maxX = x;
+		}
+		if (minY == null || y < minY) {
+			minY = y;
 		}
 		if (maxY == null || y > maxY) {
 			maxY = y;
