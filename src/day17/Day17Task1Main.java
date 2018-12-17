@@ -62,7 +62,7 @@ public class Day17Task1Main {
 
 			printGrid();
 
-			for (int y = 0; y < grid.length; y++) {
+			for (int y = 1; y < grid.length; y++) {
 				for (int x = 0; x < grid[y].length; x++) {
 					if (grid[y][x] == '~' || grid[y][x] == '|') {
 						waterCount++;
