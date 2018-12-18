@@ -7,11 +7,6 @@ import java.util.List;
 import util.AdventUtils;
 import util.Touple;
 
-//30904 h
-//30389 h
-
-// 33728 h
-// 33713 l
 public class Day17Task2Main {
 
 	private static int minX = 500;
