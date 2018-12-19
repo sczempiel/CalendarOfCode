@@ -52,7 +52,7 @@ public class Day16Task1Main {
 				int matchingOpcode = 0;
 				for (Opcode opcode : Opcode.OPCODES) {
 					int[] instructions = execution.getInstructions();
-					int[] result = opcode.execute(instructions[1], instructions[2], instructions[3],
+					long[] result = opcode.execute(instructions[1], instructions[2], instructions[3],
 							execution.getRegistersBefore());
 					if (Arrays.equals(result, execution.getRegistersAfter())) {
 						matchingOpcode++;
