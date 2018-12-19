@@ -69,7 +69,7 @@ public class AdventUtils {
 			}
 		}
 	}
-	
+
 	public static void publishNewExtraLine(int day, int task, String result, String extraName) throws IOException {
 		System.out.print(result);
 		writeNewExtraLine(day, task, result, extraName);
@@ -167,6 +167,24 @@ public class AdventUtils {
 		}
 
 		return formated;
+	}
+
+	public static void printGrid(int day, int task, char[][] grid, boolean publish) throws IOException {
+		StringBuilder sb = new StringBuilder();
+
+		for (int y = 0; y < grid.length; y++) {
+			for (int x = 0; x < grid[y].length; x++) {
+				sb.append(grid[y][x]);
+			}
+			if (y < grid.length - 1) {
+				sb.append("\n");
+			}
+		}
+		if (publish) {
+			AdventUtils.publishExtra(day, task, sb.toString(), "grid");
+		} else {
+			AdventUtils.writeExtra(day, task, sb.toString(), "grid");
+		}
 	}
 
 }

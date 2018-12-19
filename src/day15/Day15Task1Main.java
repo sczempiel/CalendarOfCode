@@ -33,9 +33,11 @@ public class Day15Task1Main {
 			int currentFighter = 0;
 
 			while (goblinCount > 0 && elfCount > 0) {
+				System.out.print(fighters.get(currentFighter).getId());
 				turn(fighters.get(currentFighter));
 				currentFighter++;
 				if (currentFighter == fighters.size()) {
+					System.out.println("");
 					currentFighter = 0;
 					rounds++;
 					printTiles(true);
