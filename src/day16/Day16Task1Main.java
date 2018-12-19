@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import day16.opcode.Opcode;
 import util.AdventUtils;
+import util.opcode.Opcode;
 
 // 239 l
 public class Day16Task1Main {

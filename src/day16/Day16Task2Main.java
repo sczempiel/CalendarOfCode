@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import day16.opcode.Opcode;
 import util.AdventUtils;
+import util.opcode.Opcode;
 
 public class Day16Task2Main {
 

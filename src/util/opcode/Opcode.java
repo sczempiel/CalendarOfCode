@@ -1,4 +1,4 @@
-package day16.opcode;
+package util.opcode;
 
 import java.util.ArrayList;
 import java.util.Collections;
