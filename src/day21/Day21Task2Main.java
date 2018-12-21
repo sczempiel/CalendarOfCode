@@ -9,12 +9,6 @@ import util.opcode.Eqrr;
 import util.opcode.Execution;
 import util.opcode.Opcode;
 
-// 12772194 h
-// 14944195 h
-// 134634 l
-// 12772428 h
-// 134634 nr
-// 14944195 nr
 public class Day21Task2Main {
 
 	private static List<Execution> executions = new ArrayList<>();
@@ -73,7 +67,7 @@ public class Day21Task2Main {
 					lastR1 = register[1];
 				}
 			}
-			System.out.println("--------------------");
+
 			Integer longestRun = null;
 			for (int i = nums.size() - 1; i > -1; i--) {
 				Integer num = nums.get(i);
@@ -82,8 +76,6 @@ public class Day21Task2Main {
 					break;
 				}
 			}
-
-			System.out.println("--------------------");
 
 			AdventUtils.publishResult(21, 2, longestRun);
 
