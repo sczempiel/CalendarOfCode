@@ -1,6 +1,4 @@
-package day19;
-
-import util.opcode.Opcode;
+package util.opcode;
 
 public class Execution {
 	private Opcode opcode;
@@ -17,7 +15,6 @@ public class Execution {
 		StringBuilder builder = new StringBuilder();
 		if (opcode != null) {
 			builder.append(opcode.getClass().getSimpleName());
-			builder.append(" ");
 		}
 		builder.append(" ");
 		builder.append(a);

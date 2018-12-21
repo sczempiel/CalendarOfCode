@@ -69,6 +69,6 @@ public abstract class Opcode {
 		}
 	}
 
-	public abstract long[] execute(int i1, int i2, int i3, long[] register);
+	public abstract int[] execute(int i1, int i2, int i3, int[] register);
 
 }

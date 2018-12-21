@@ -68,7 +68,7 @@ public class Day16Task2Main {
 			for (Execution execution : executions) {
 				int[] instructions = execution.getInstructions();
 				for (Opcode opcode : Opcode.OPCODES) {
-					long[] result = opcode.execute(instructions[1], instructions[2], instructions[3],
+					int[] result = opcode.execute(instructions[1], instructions[2], instructions[3],
 							execution.getRegistersBefore());
 					if (!Arrays.equals(result, execution.getRegistersAfter())) {
 						opcodes.get(instructions[0]).remove(opcode);
@@ -114,7 +114,7 @@ public class Day16Task2Main {
 
 			AdventUtils.writeExtra(16, 2, sb.toString(), "opcodes");
 
-			long[] register = new long[4];
+			int[] register = new int[4];
 
 			for (int[] ins : instructionsList) {
 				register = opcodes.get(ins[0]).get(0).execute(ins[1], ins[2], ins[3], register);

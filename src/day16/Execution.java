@@ -4,23 +4,23 @@ import java.util.Arrays;
 
 public class Execution {
 
-	private long[] registersBefore = new long[4];
-	private long[] registersAfter = new long[4];
+	private int[] registersBefore = new int[4];
+	private int[] registersAfter = new int[4];
 	private int[] instructions = new int[4];
 
-	public long[] getRegistersBefore() {
+	public int[] getRegistersBefore() {
 		return registersBefore;
 	}
 
-	public void setRegistersBefore(long[] registersBefore) {
+	public void setRegistersBefore(int[] registersBefore) {
 		this.registersBefore = registersBefore;
 	}
 
-	public long[] getRegistersAfter() {
+	public int[] getRegistersAfter() {
 		return registersAfter;
 	}
 
-	public void setRegistersAfter(long[] registersAfter) {
+	public void setRegistersAfter(int[] registersAfter) {
 		this.registersAfter = registersAfter;
 	}
 

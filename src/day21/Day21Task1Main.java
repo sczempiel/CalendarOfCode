@@ -1,24 +1,26 @@
-package day19;
+package day21;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import util.AdventUtils;
+import util.opcode.Eqrr;
 import util.opcode.Execution;
 import util.opcode.Opcode;
 
-public class Day19Task1Main {
+public class Day21Task1Main {
+
+	private static List<Execution> executions = new ArrayList<>();
+	private static int ip;
 
 	public static void main(String[] args) {
 
 		try {
-			int[] register = new int[6];
-			List<String> input = AdventUtils.getStringInput(19);
-			List<Execution> executions = new ArrayList<>();
+			List<String> input = AdventUtils.getStringInput(21);
 
 			// instructionPointer
-			int ip = Integer.parseInt(input.get(0).substring(4, input.get(0).length()));
+			ip = Integer.parseInt(input.get(0).substring(4, input.get(0).length()));
 			for (int i = 1; i < input.size(); i++) {
 				String[] parts = input.get(i).split(" ");
 				Execution execution = new Execution();
@@ -29,14 +31,18 @@ public class Day19Task1Main {
 				executions.add(execution);
 			}
 
+			int[] register = new int[6];
+
 			while (register[ip] < executions.size()) {
 				Execution execution = executions.get(Long.valueOf(register[ip]).intValue());
 				register = execution.getOpcode().execute(execution.getA(), execution.getB(), execution.getC(),
 						register);
 				register[ip] += 1;
+				if (execution.getOpcode().getClass() == Eqrr.class) {
+					break;
+				}
 			}
-
-			AdventUtils.publishResult(19, 1, Long.valueOf(register[0]).intValue());
+			AdventUtils.publishResult(21, 1, register[1]);
 
 		} catch (IOException e) {
 			e.printStackTrace();
