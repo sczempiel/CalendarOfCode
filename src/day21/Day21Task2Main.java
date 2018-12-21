@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import util.AdventUtils;
+import util.opcode.Eqrr;
 import util.opcode.Execution;
 import util.opcode.Opcode;
 
@@ -51,8 +52,8 @@ public class Day21Task2Main {
 				register = execution.getOpcode().execute(execution.getA(), execution.getB(), execution.getC(),
 						register);
 				register[ip] += 1;
-				// && (register[1] > 0 || nums.size() > 0)
-				if (register[1] >= 0 && register[1] != 12772194 && register[1] != lastR1) {
+
+				if (execution.getOpcode().getClass() == Eqrr.class && register[1] >= 0 && register[1] != lastR1) {
 					int index = nums.indexOf(register[1]);
 					nums.add(register[1]);
 					if (index != -1) {
