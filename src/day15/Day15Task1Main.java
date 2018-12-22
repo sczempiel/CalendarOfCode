@@ -3,52 +3,58 @@ package day15;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import util.AdventUtils;
+import util.Touple;
+import util.pathfinding.Graph;
 
 // error after turn 23 when the first elf is killed
 public class Day15Task1Main {
 
-	private static Tile[][] tiles;
+	private static Graph<Tile> graph = new Graph<>();
+	private static Tile[][] grid;
 	private static List<Fighter> fighters = new ArrayList<>();
 	private static int rounds = 0;
 	private static int goblinCount = 0;
 	private static int elfCount = 0;
+	private static int maxX;
+	private static int maxY;
 
 	public static void main(String[] args) {
 
 		try {
 			initTiles(AdventUtils.getStringInput(15));
 
-			AdventUtils.eraseExtraFile(15, 1, "rounds");
-
-			printTiles(true);
+			System.out.println(rounds);
+			printTiles();
 
 			int currentFighter = 0;
 
 			while (goblinCount > 0 && elfCount > 0) {
+				if (currentFighter == 0) {
+					rounds++;
+					System.out.println(rounds);
+				}
 				System.out.print(fighters.get(currentFighter).getId());
 				turn(fighters.get(currentFighter));
 				currentFighter++;
 				if (currentFighter == fighters.size()) {
 					System.out.println("");
 					currentFighter = 0;
-					rounds++;
-					printTiles(true);
+					printTiles();
 					fighters = fighters.stream().filter(Fighter::isAlive).sorted().collect(Collectors.toList());
 				}
 			}
 
 			if (currentFighter != fighters.size()) {
-				rounds++;
-				printTiles(false);
-				rounds--;
+				System.out.println(rounds + 1);
+				System.out.println("(not completed)");
+				printTiles();
 			}
 
 			int totalHp = fighters.stream().filter(Fighter::isAlive).mapToInt(Fighter::getHitpoints).sum();
@@ -58,73 +64,6 @@ public class Day15Task1Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private static void initTiles(List<String> input) {
-		tiles = new Tile[input.size()][input.get(0).length()];
-		int id = 0;
-
-		for (int y = 0; y < input.size(); y++) {
-			char[] row = input.get(y).toCharArray();
-			for (int x = 0; x < row.length; x++) {
-				Tile tile = new Tile(y, x, row[x] == '#');
-				if (row[x] != '.' && row[x] != '#') {
-					Fighter fighter = new Fighter(id++, row[x] == 'G');
-					tile.setFighter(fighter);
-					fighter.setTile(tile);
-					fighters.add(fighter);
-
-					if (fighter.isGoblin()) {
-						goblinCount++;
-					} else {
-						elfCount++;
-					}
-				}
-				tiles[y][x] = tile;
-			}
-		}
-	}
-
-	private static void printTiles(boolean completed) throws IOException {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(rounds);
-		if (!completed) {
-			sb.append("(not completed)");
-		}
-		sb.append("\n");
-		for (int y = 0; y < tiles.length; y++) {
-			List<Fighter> fightersInRow = new ArrayList<>();
-			for (int x = 0; x < tiles[y].length; x++) {
-				Tile tile = tiles[y][x];
-				if (tile.isWall()) {
-					sb.append("#");
-				} else if (tile.getFighter() == null) {
-					sb.append(".");
-				} else if (tile.getFighter().isGoblin()) {
-					sb.append("G");
-					fightersInRow.add(tile.getFighter());
-				} else {
-					sb.append("E");
-					fightersInRow.add(tile.getFighter());
-				}
-			}
-			sb.append("   ");
-			for (Iterator<Fighter> it = fightersInRow.iterator(); it.hasNext();) {
-				Fighter fighter = it.next();
-				if (fighter.isGoblin()) {
-					sb.append("G");
-				} else {
-					sb.append("E");
-				}
-				sb.append("[" + fighter.getId() + "](" + fighter.getHitpoints() + ")");
-				if (it.hasNext()) {
-					sb.append(", ");
-				}
-			}
-			sb.append("\n");
-		}
-		AdventUtils.publishNewExtraLine(15, 1, sb.toString(), "rounds");
 	}
 
 	private static void turn(Fighter fighter) {
@@ -137,6 +76,10 @@ public class Day15Task1Main {
 		}
 		attack(fighter);
 	}
+
+//////////////
+//attack
+//////////////
 
 	private static void attack(Fighter fighter) {
 		Fighter enemy = findTargetToAttack(fighter);
@@ -191,204 +134,18 @@ public class Day15Task1Main {
 		return lowstHpFighter.get(0);
 	}
 
-	private static void move(Fighter fighter) {
-		Move move = calculateMove(fighter);
-		Tile current = fighter.getTile();
-		if (move != null) {
-			Tile newTile = null;
-			switch (move) {
-			case left:
-				newTile = tiles[current.getY()][current.getX() - 1];
-				break;
-			case up:
-				newTile = tiles[current.getY() - 1][current.getX()];
-				break;
-			case right:
-				newTile = tiles[current.getY()][current.getX() + 1];
-				break;
-			case down:
-				newTile = tiles[current.getY() + 1][current.getX()];
-				break;
-			}
-			newTile.setFighter(fighter);
-			fighter.setTile(newTile);
-			current.setFighter(null);
-		}
-	}
-
-	private static Move calculateMove(Fighter fighter) {
-		Tile currentTile = fighter.getTile();
-
-		Integer steps = getStepsToAnyEnemy(currentTile.getY(), currentTile.getX(), !fighter.isGoblin(), 0,
-				new ArrayList<>());
-
-		if (steps == null) {
-			return null;
-		}
-
-		Move directMove = tryDirectPath(fighter);
-		if (directMove != null) {
-			return directMove;
-		}
-		Turn turn = new Turn(fighter, currentTile);
-		turn.setShortestSteps(steps);
-		turn = findPossibleTiles(currentTile.getY(), currentTile.getX(), !fighter.isGoblin(), 0, turn,
-				new ArrayList<>(), new ArrayList<>());
-
-		if (turn.getPaths().isEmpty()) {
-			return null;
-		}
-
-		Set<Tile> tiles = turn.getPaths().keySet();
-
-		Tile closestTile = null;
-
-		for (Tile tile : tiles) {
-			if (closestTile == null || tile.compareTo(closestTile) == -1) {
-				closestTile = tile;
-			}
-		}
-
-		turn.setTargetTile(closestTile);
-
-		List<Move> bestMoves = null;
-
-		for (List<Move> moves : turn.getPossibleMovesToTarget()) {
-			if (bestMoves != null) {
-				int movesSize = moves.size();
-				int bestMovesSize = bestMoves.size();
-				if (movesSize < bestMovesSize) {
-					bestMoves = moves;
-				} else if (movesSize == bestMovesSize && movesSize != 0
-						&& Move.compare(bestMoves.get(0), moves.get(0)) < 0) {
-					bestMoves = moves;
-				}
-			} else {
-				bestMoves = moves;
-			}
-		}
-
-		turn.setBestPath(bestMoves);
-
-		if (bestMoves.isEmpty()) {
-			return null;
-		}
-
-		return bestMoves.get(0);
-
-	}
-
-	private static Integer getStepsToAnyEnemy(int y, int x, boolean enemyIsGoblin, int currentSteps,
-			List<Tile> visitedTiles) {
-		if (visitedTiles.contains(tiles[y][x])) {
-			return null;
-		}
-		visitedTiles.add(tiles[y][x]);
-
-		if (!getNearEnemies(y, x, enemyIsGoblin).isEmpty()) {
-			return currentSteps;
-		} else {
-			currentSteps++;
-
-			if (y - 1 > 0 && tiles[y - 1][x].canWalkOnto()) {
-				Integer steps = getStepsToAnyEnemy(y - 1, x, enemyIsGoblin, currentSteps, visitedTiles);
-				if (steps != null) {
-					return steps;
-				}
-			}
-			if (x - 1 > 0 && tiles[y][x - 1].canWalkOnto()) {
-				Integer steps = getStepsToAnyEnemy(y, x - 1, enemyIsGoblin, currentSteps, visitedTiles);
-				if (steps != null) {
-					return steps;
-				}
-			}
-			if (x + 1 < tiles[y].length && tiles[y][x + 1].canWalkOnto()) {
-				Integer steps = getStepsToAnyEnemy(y, x + 1, enemyIsGoblin, currentSteps, visitedTiles);
-				if (steps != null) {
-					return steps;
-				}
-			}
-			if (y + 1 < tiles.length && tiles[y + 1][x].canWalkOnto()) {
-				Integer steps = getStepsToAnyEnemy(y + 1, x, enemyIsGoblin, currentSteps, visitedTiles);
-				if (steps != null) {
-					return steps;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private static Move tryDirectPath(Fighter fighter) {
-		Tile currentTile = fighter.getTile();
-		Fighter closest = null;
-		for (Fighter enemy : fighters) {
-			if (fighter.isGoblin() != enemy.isGoblin()) {
-				int y = fighter.getTile().getY();
-				int x = fighter.getTile().getX();
-				boolean hasFreeTiles = tiles[y - 1][x].canWalkOnto() || tiles[y + 1][x].canWalkOnto()
-						|| tiles[y][x - 1].canWalkOnto() || tiles[y][x + 1].canWalkOnto();
-				if (hasFreeTiles && (closest == null || enemy.compareTo(closest) == -1)) {
-					closest = enemy;
-				}
-			}
-		}
-
-		int yMove = currentTile.getY() - closest.getTile().getY();
-		int xMove = currentTile.getX() - closest.getTile().getX();
-		Integer lastYMove = null;
-		Integer lastXMove = null;
-		List<Move> directMoves = new ArrayList<>();
-		List<Tile> visitedTiles = new ArrayList<>();
-		Tile tile = fighter.getTile();
-		while (lastYMove == null || lastYMove != yMove || lastXMove == null || lastXMove != xMove) {
-			lastYMove = yMove;
-			lastXMove = xMove;
-			while (yMove > 0 && tiles[tile.getY() - 1][tile.getX()].canWalkOnto()) {
-				tile = tiles[tile.getY() - 1][tile.getX()];
-				yMove--;
-				directMoves.add(Move.up);
-				visitedTiles.add(tile);
-			}
-			while (xMove > 0 && tiles[tile.getY()][tile.getX() - 1].canWalkOnto()) {
-				tile = tiles[tile.getY()][tile.getX() - 1];
-				xMove--;
-				directMoves.add(Move.left);
-				visitedTiles.add(tile);
-			}
-			while (xMove < 0 && tiles[tile.getY()][tile.getX() + 1].canWalkOnto()) {
-				tile = tiles[tile.getY()][tile.getX() + 1];
-				xMove++;
-				directMoves.add(Move.right);
-				visitedTiles.add(tile);
-			}
-			while (yMove < 0 && tiles[tile.getY() + 1][tile.getX()].canWalkOnto()) {
-				tile = tiles[tile.getY() + 1][tile.getX()];
-				yMove++;
-				directMoves.add(Move.down);
-				visitedTiles.add(tile);
-			}
-		}
-
-		if (!getNearEnemies(tile.getY(), tile.getX(), closest.isGoblin()).isEmpty()) {
-			return directMoves.get(0);
-		}
-
-		return null;
-	}
-
 	private static List<Fighter> getNearEnemies(int y, int x, boolean enemyIsGoblin) {
 		List<Fighter> enemies = new ArrayList<>();
 		if (y - 1 > 0) {
 			addEnemy(getEnemy(y - 1, x, enemyIsGoblin), enemies);
 		}
-		if (y + 1 < tiles.length) {
+		if (y + 1 < maxY) {
 			addEnemy(getEnemy(y + 1, x, enemyIsGoblin), enemies);
 		}
 		if (x - 1 > 0) {
 			addEnemy(getEnemy(y, x - 1, enemyIsGoblin), enemies);
 		}
-		if (x + 1 < tiles[y].length) {
+		if (x + 1 < maxX) {
 			addEnemy(getEnemy(y, x + 1, enemyIsGoblin), enemies);
 		}
 		return enemies;
@@ -400,64 +157,220 @@ public class Day15Task1Main {
 		}
 	}
 
-	private static Turn findPossibleTiles(int y, int x, boolean enemyIsGoblin, int currentSteps, Turn turn,
-			List<Tile> visitedTiles, List<Move> moves) {
-		if (visitedTiles.contains(tiles[y][x])) {
-			return turn;
-		}
-		visitedTiles.add(tiles[y][x]);
-
-		if (!getNearEnemies(y, x, enemyIsGoblin).isEmpty()) {
-			if (turn.getShortestSteps() != null && turn.getShortestSteps() > currentSteps) {
-				turn.setPaths(new HashMap<>());
-			}
-			if (turn.getShortestSteps() == null || turn.getShortestSteps() >= currentSteps) {
-
-				Map<Tile, List<List<Move>>> paths = turn.getPaths();
-				List<List<Move>> pathes = paths.get(tiles[y][x]);
-				if (pathes == null) {
-					pathes = new ArrayList<>();
-					paths.put(tiles[y][x], pathes);
-				}
-				pathes.add(moves);
-				turn.setShortestSteps(currentSteps);
-			}
-		} else {
-			currentSteps++;
-			if (turn.getShortestSteps() != null && currentSteps > turn.getShortestSteps()) {
-				return turn;
-			}
-
-			if (y - 1 > 0 && tiles[y - 1][x].canWalkOnto()) {
-				List<Move> newMoves = new ArrayList<>(moves);
-				newMoves.add(Move.up);
-				findPossibleTiles(y - 1, x, enemyIsGoblin, currentSteps, turn, new ArrayList<>(visitedTiles), newMoves);
-			}
-			if (x - 1 > 0 && tiles[y][x - 1].canWalkOnto()) {
-				List<Move> newMoves = new ArrayList<>(moves);
-				newMoves.add(Move.left);
-				findPossibleTiles(y, x - 1, enemyIsGoblin, currentSteps, turn, new ArrayList<>(visitedTiles), newMoves);
-			}
-			if (x + 1 < tiles[y].length && tiles[y][x + 1].canWalkOnto()) {
-				List<Move> newMoves = new ArrayList<>(moves);
-				newMoves.add(Move.right);
-				findPossibleTiles(y, x + 1, enemyIsGoblin, currentSteps, turn, new ArrayList<>(visitedTiles), newMoves);
-			}
-			if (y + 1 < tiles.length && tiles[y + 1][x].canWalkOnto()) {
-				List<Move> newMoves = new ArrayList<>(moves);
-				newMoves.add(Move.down);
-				findPossibleTiles(y + 1, x, enemyIsGoblin, currentSteps, turn, new ArrayList<>(visitedTiles), newMoves);
-			}
-		}
-
-		return turn;
-	}
-
 	private static Fighter getEnemy(int y, int x, boolean isGoblin) {
-		Fighter fighter = tiles[y][x].getFighter();
+		Fighter fighter = graph.getNode(y, x).getFighter();
 		if (fighter != null && fighter.isGoblin() == isGoblin) {
 			return fighter;
 		}
 		return null;
+	}
+
+//////////////
+// move
+//////////////
+
+	// FIXME the edges from 2,5 to 1,5 are missing @ turn 24, they were set initally
+	private static void move(Fighter fighter) {
+		Set<Tile> openEnemyTiles = findOpenEnemyTiles(fighter);
+
+		Integer closestDist = null;
+		Tile newTile = null;
+		Tile forTile = null;
+		graph.calculateShortestPathFromSource(fighter.getTile());
+		for (Tile target : openEnemyTiles) {
+			int tDist = target.getDistance();
+			if (closestDist == null || closestDist >= tDist) {
+				for (List<Tile> m : target.getShortestPaths()) {
+					Tile tile = null;
+					if (m.size() > 1) {
+						tile = m.get(1);
+					} else {
+						tile = target;
+					}
+
+					if (closestDist == null || closestDist > tDist || newTile == null || target.compareTo(forTile) == -1
+							|| tile.compareTo(newTile) == -1) {
+						newTile = tile;
+						forTile = target;
+					}
+					closestDist = target.getDistance();
+				}
+			}
+		}
+
+		if (newTile != null) {
+			Tile current = fighter.getTile();
+
+			newTile.setFighter(fighter);
+			fighter.setTile(newTile);
+			current.setFighter(null);
+
+			reAddEdges(current);
+			removeEdges(newTile);
+		}
+	}
+
+	private static void removeEdges(Tile tile) {
+		for (Tile adjacent : tile.getAdjacentNodes().keySet()) {
+			adjacent.getAdjacentNodes().remove(tile);
+		}
+	}
+
+	private static void reAddEdges(Tile tile) {
+		int y = tile.getY();
+		int x = tile.getX();
+		if (y - 1 > 0) {
+			reAddEdge(graph.getNode(y - 1, x), tile);
+		}
+		if (y + 1 < maxY) {
+			reAddEdge(graph.getNode(y + 1, x), tile);
+		}
+		if (x - 1 > 0) {
+			reAddEdge(graph.getNode(y, x - 1), tile);
+		}
+		if (x + 1 < maxX) {
+			reAddEdge(graph.getNode(y, x + 1), tile);
+		}
+	}
+
+	private static void reAddEdge(Tile tile, Tile toAdd) {
+		if (!tile.isWall()) {
+			tile.addDestination(toAdd, 1);
+		}
+	}
+
+	private static Set<Tile> findOpenEnemyTiles(Fighter fighter) {
+		Set<Tile> openEnemyTiles = new HashSet<>();
+
+		for (Fighter enemy : fighters) {
+			if (enemy.isAlive() && enemy.isGoblin() != fighter.isGoblin()) {
+				int y = enemy.getTile().getY();
+				int x = enemy.getTile().getX();
+				Tile tile;
+				if (y - 1 > 0) {
+					tile = graph.getNode(y - 1, x);
+					if (tile.canWalkOnto()) {
+						openEnemyTiles.add(tile);
+					}
+				}
+				if (y + 1 < maxY) {
+					tile = graph.getNode(y + 1, x);
+					if (tile.canWalkOnto()) {
+						openEnemyTiles.add(tile);
+					}
+				}
+				if (x - 1 > 0) {
+					tile = graph.getNode(y, x - 1);
+					if (tile.canWalkOnto()) {
+						openEnemyTiles.add(tile);
+					}
+				}
+				if (x + 1 < maxX) {
+					tile = graph.getNode(y, x + 1);
+					if (tile.canWalkOnto()) {
+						openEnemyTiles.add(tile);
+					}
+				}
+			}
+		}
+		return openEnemyTiles;
+	}
+
+//////////////
+//init
+//////////////
+
+	private static void initTiles(List<String> input) {
+		maxY = input.size();
+		maxX = input.get(0).length();
+		grid = new Tile[maxY][maxX];
+		int id = 0;
+		for (int y = 0; y < input.size(); y++) {
+			char[] row = input.get(y).toCharArray();
+			for (int x = 0; x < row.length; x++) {
+				Tile tile = new Tile(y, x, row[x] == '#');
+				if (row[x] != '.' && row[x] != '#') {
+					Fighter fighter = new Fighter(id++, row[x] == 'G');
+					tile.setFighter(fighter);
+					fighter.setTile(tile);
+					fighters.add(fighter);
+
+					if (fighter.isGoblin()) {
+						goblinCount++;
+					} else {
+						elfCount++;
+					}
+				}
+				grid[y][x] = tile;
+				graph.addNode(tile);
+			}
+		}
+
+		for (Tile tile : graph.getNodes().values()) {
+			if (tile.isWall()) {
+				continue;
+			}
+			int y = tile.getY();
+			int x = tile.getX();
+			if (y - 1 > 0) {
+				addTile(tile, graph.getNode(new Touple<>(y - 1, x)));
+			}
+			if (x - 1 > 0) {
+				addTile(tile, graph.getNode(new Touple<>(y, x - 1)));
+			}
+			if (x + 1 < maxX) {
+				addTile(tile, graph.getNode(new Touple<>(y, x + 1)));
+			}
+			if (y + 1 < maxY) {
+				addTile(tile, graph.getNode(new Touple<>(y + 1, x)));
+			}
+		}
+	}
+
+	private static void addTile(Tile tile, Tile adjacent) {
+		if (adjacent.canWalkOnto()) {
+			tile.addDestination(adjacent, 1);
+		}
+	}
+
+//////////////
+//print
+//////////////
+
+	private static void printTiles() throws IOException {
+		StringBuilder sb = new StringBuilder();
+
+		for (int y = 0; y < grid.length; y++) {
+			List<Fighter> fightersInRow = new ArrayList<>();
+			for (int x = 0; x < grid[y].length; x++) {
+				Tile tile = grid[y][x];
+				if (tile.isWall()) {
+					sb.append("#");
+				} else if (tile.getFighter() == null) {
+					sb.append(".");
+				} else if (tile.getFighter().isGoblin()) {
+					sb.append("G");
+					fightersInRow.add(tile.getFighter());
+				} else {
+					sb.append("E");
+					fightersInRow.add(tile.getFighter());
+				}
+			}
+			sb.append("   ");
+			for (Iterator<Fighter> it = fightersInRow.iterator(); it.hasNext();) {
+				Fighter fighter = it.next();
+				if (fighter.isGoblin()) {
+					sb.append("G");
+				} else {
+					sb.append("E");
+				}
+				sb.append("[" + fighter.getId() + "](" + fighter.getHitpoints() + ")");
+				if (it.hasNext()) {
+					sb.append(", ");
+				}
+			}
+			sb.append("\n");
+		}
+		System.out.println(sb.toString());
 	}
 }

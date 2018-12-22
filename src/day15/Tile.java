@@ -1,40 +1,37 @@
 package day15;
 
-public class Tile implements Comparable<Tile> {
-	private final int y;
-	private final int x;
+import util.Touple;
+import util.pathfinding.Node;
+
+public class Tile extends Node<Tile> implements Comparable<Tile> {
 	private final boolean isWall;
 	private Fighter fighter;
 
 	public Tile(int y, int x, boolean isWall) {
-		this.y = y;
-		this.x = x;
+		super(y, x);
+		this.isWall = isWall;
+	}
+
+	public Tile(Touple<Integer, Integer> coordinate, boolean isWall) {
+		super(coordinate);
 		this.isWall = isWall;
 	}
 
 	@Override
 	public int compareTo(Tile that) {
-		if (this.y < that.y) {
+		if (this.getY() < that.getY()) {
 			return -1;
 		}
-		if (this.y > that.y) {
+		if (this.getY() > that.getY()) {
 			return 1;
 		}
-		if (this.x < that.x) {
+		if (this.getX() < that.getX()) {
 			return -1;
 		}
-		if (this.x > that.x) {
+		if (this.getX() > that.getX()) {
 			return 1;
 		}
 		return 0;
-	}
-
-	public int getY() {
-		return y;
-	}
-
-	public int getX() {
-		return x;
 	}
 
 	public boolean isWall() {
@@ -57,13 +54,13 @@ public class Tile implements Comparable<Tile> {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Tile [y=");
-		builder.append(y);
+		builder.append(getY());
 		builder.append(", x=");
-		builder.append(x);
+		builder.append(getX());
 		builder.append(", isWall=");
 		builder.append(isWall);
-		builder.append(", ");
 		if (fighter != null) {
+			builder.append(", ");
 			builder.append("fighter=");
 			builder.append(fighter.getId());
 		}
