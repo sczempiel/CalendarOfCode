@@ -7,14 +7,15 @@ public class Fighter implements Comparable<Fighter> {
 	// there are only elves and goblins
 	private final boolean goblin;
 	private Tile tile;
+	private int damage = 3;
 
 	public Fighter(int id, boolean goblin) {
 		this.id = id;
 		this.goblin = goblin;
 	}
 
-	public boolean hit() {
-		hitpoints -= 3;
+	public boolean hit(int damage) {
+		hitpoints -= damage;
 		return isAlive();
 	}
 
@@ -49,6 +50,14 @@ public class Fighter implements Comparable<Fighter> {
 
 	public void setTile(Tile tile) {
 		this.tile = tile;
+	}
+
+	public int getDamage() {
+		return damage;
+	}
+
+	public void setDamage(int damage) {
+		this.damage = damage;
 	}
 
 	@Override

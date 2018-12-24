@@ -1,7 +1,7 @@
 package util.pathfinding;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +11,7 @@ public class Node<T extends Node<T>> {
 
 	private final Touple<Integer, Integer> coordinate;
 
-	private List<List<T>> shortestPaths = new ArrayList<>();
+	private List<T> shortestPath = new LinkedList<>();
 
 	private int distance = Integer.MAX_VALUE;
 
@@ -41,12 +41,12 @@ public class Node<T extends Node<T>> {
 		return coordinate;
 	}
 
-	public List<List<T>> getShortestPaths() {
-		return shortestPaths;
+	public List<T> getShortestPath() {
+		return shortestPath;
 	}
 
-	public void setShortestPaths(List<List<T>> shortestPaths) {
-		this.shortestPaths = shortestPaths;
+	public void setShortestPath(List<T> shortestPath) {
+		this.shortestPath = shortestPath;
 	}
 
 	public int getDistance() {
@@ -100,20 +100,12 @@ public class Node<T extends Node<T>> {
 			builder.append(getY() + "," + getX());
 			builder.append(", ");
 		}
-		if (shortestPaths != null) {
-			builder.append("shortestPaths={");
-			for (int h = 0; h < shortestPaths.size(); h++) {
-				List<T> shortestPath = shortestPaths.get(h);
-				builder.append("{");
-				for (int i = 0; i < shortestPath.size(); i++) {
-					T node = shortestPath.get(i);
-					builder.append(node.getY() + "," + node.getX());
-					if (i < shortestPath.size() - 1) {
-						builder.append(", ");
-					}
-				}
-				builder.append("}");
-				if (h < shortestPaths.size() - 1) {
+		if (shortestPath != null) {
+			builder.append("shortestPath={");
+			for (int i = 0; i < shortestPath.size(); i++) {
+				T node = shortestPath.get(i);
+				builder.append(node.getY() + "," + node.getX());
+				if (i < shortestPath.size() - 1) {
 					builder.append(", ");
 				}
 			}

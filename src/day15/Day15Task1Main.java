@@ -3,63 +3,82 @@ package day15;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import util.AdventUtils;
 import util.Touple;
-import util.pathfinding.Graph;
 
-// error after turn 23 when the first elf is killed
 public class Day15Task1Main {
+	private static boolean debug = true;
 
-	private static Graph<Tile> graph = new Graph<>();
+	private static Graph graph = new Graph();
 	private static Tile[][] grid;
 	private static List<Fighter> fighters = new ArrayList<>();
-	private static int rounds = 0;
+	private static int round = 0;
 	private static int goblinCount = 0;
 	private static int elfCount = 0;
 	private static int maxX;
 	private static int maxY;
 
 	public static void main(String[] args) {
+		StringBuilder sb = new StringBuilder();
 
 		try {
 			initTiles(AdventUtils.getStringInput(15));
-
-			System.out.println(rounds);
-			printTiles();
+			if (debug) {
+				AdventUtils.eraseExtraFile(15, 1, "rounds");
+				sb.append(round);
+				sb.append("\n");
+				sb.append(printTiles());
+				AdventUtils.publishNewExtraLine(15, 1, sb.toString(), "rounds");
+			}
 
 			int currentFighter = 0;
 
 			while (goblinCount > 0 && elfCount > 0) {
 				if (currentFighter == 0) {
-					rounds++;
-					System.out.println(rounds);
+					round++;
+					if (debug) {
+						sb = new StringBuilder();
+						sb.append("\n");
+						sb.append(round);
+					}
 				}
-				System.out.print(fighters.get(currentFighter).getId());
 				turn(fighters.get(currentFighter));
 				currentFighter++;
 				if (currentFighter == fighters.size()) {
-					System.out.println("");
+					if (debug) {
+						sb.append("\n");
+						sb.append(printTiles());
+						AdventUtils.publishNewExtraLine(15, 1, sb.toString(), "rounds");
+					}
 					currentFighter = 0;
-					printTiles();
 					fighters = fighters.stream().filter(Fighter::isAlive).sorted().collect(Collectors.toList());
 				}
 			}
 
-			if (currentFighter != fighters.size()) {
-				System.out.println(rounds + 1);
-				System.out.println("(not completed)");
-				printTiles();
+			if (currentFighter != fighters.size() && currentFighter != 0) {
+				if (debug) {
+					sb = new StringBuilder();
+					sb.append((round) + " (not completed)");
+					sb.append("\n");
+					sb.append(printTiles());
+					AdventUtils.publishNewExtraLine(15, 1, sb.toString(), "rounds");
+				}
+				round--;
 			}
 
 			int totalHp = fighters.stream().filter(Fighter::isAlive).mapToInt(Fighter::getHitpoints).sum();
-
-			AdventUtils.publishResult(15, 1, totalHp * rounds);
+			if (debug) {
+				System.out.println(totalHp + " * " + round);
+			}
+			AdventUtils.publishResult(15, 1, totalHp * round);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -75,6 +94,7 @@ public class Day15Task1Main {
 			move(fighter);
 		}
 		attack(fighter);
+		initGraph();
 	}
 
 //////////////
@@ -88,7 +108,7 @@ public class Day15Task1Main {
 			return;
 		}
 
-		enemy.hit();
+		enemy.hit(fighter.getDamage());
 
 		if (!enemy.isAlive()) {
 			enemy.getTile().setFighter(null);
@@ -169,33 +189,29 @@ public class Day15Task1Main {
 // move
 //////////////
 
-	// FIXME the edges from 2,5 to 1,5 are missing @ turn 24, they were set initally
 	private static void move(Fighter fighter) {
 		Set<Tile> openEnemyTiles = findOpenEnemyTiles(fighter);
 
+		if (openEnemyTiles.isEmpty()) {
+			return;
+		}
+
 		Integer closestDist = null;
-		Tile newTile = null;
-		Tile forTile = null;
-		graph.calculateShortestPathFromSource(fighter.getTile());
+		Tile choosenTarget = null;
+		graph.calculateShortestPathFromSource(fighter.getTile(), openEnemyTiles, false);
 		for (Tile target : openEnemyTiles) {
 			int tDist = target.getDistance();
-			if (closestDist == null || closestDist >= tDist) {
-				for (List<Tile> m : target.getShortestPaths()) {
-					Tile tile = null;
-					if (m.size() > 1) {
-						tile = m.get(1);
-					} else {
-						tile = target;
-					}
-
-					if (closestDist == null || closestDist > tDist || newTile == null || target.compareTo(forTile) == -1
-							|| tile.compareTo(newTile) == -1) {
-						newTile = tile;
-						forTile = target;
-					}
-					closestDist = target.getDistance();
-				}
+			if (closestDist == null || closestDist > tDist
+					|| (closestDist == tDist && target.compareTo(choosenTarget) == -1)) {
+				choosenTarget = target;
+				closestDist = target.getDistance();
 			}
+		}
+		Tile newTile = null;
+		if (choosenTarget.getShortestPath().size() > 1) {
+			newTile = choosenTarget.getShortestPath().get(1);
+		} else if (choosenTarget.getShortestPath().size() == 1) {
+			newTile = choosenTarget;
 		}
 
 		if (newTile != null) {
@@ -204,39 +220,8 @@ public class Day15Task1Main {
 			newTile.setFighter(fighter);
 			fighter.setTile(newTile);
 			current.setFighter(null);
+		}
 
-			reAddEdges(current);
-			removeEdges(newTile);
-		}
-	}
-
-	private static void removeEdges(Tile tile) {
-		for (Tile adjacent : tile.getAdjacentNodes().keySet()) {
-			adjacent.getAdjacentNodes().remove(tile);
-		}
-	}
-
-	private static void reAddEdges(Tile tile) {
-		int y = tile.getY();
-		int x = tile.getX();
-		if (y - 1 > 0) {
-			reAddEdge(graph.getNode(y - 1, x), tile);
-		}
-		if (y + 1 < maxY) {
-			reAddEdge(graph.getNode(y + 1, x), tile);
-		}
-		if (x - 1 > 0) {
-			reAddEdge(graph.getNode(y, x - 1), tile);
-		}
-		if (x + 1 < maxX) {
-			reAddEdge(graph.getNode(y, x + 1), tile);
-		}
-	}
-
-	private static void reAddEdge(Tile tile, Tile toAdd) {
-		if (!tile.isWall()) {
-			tile.addDestination(toAdd, 1);
-		}
 	}
 
 	private static Set<Tile> findOpenEnemyTiles(Fighter fighter) {
@@ -306,10 +291,17 @@ public class Day15Task1Main {
 			}
 		}
 
+		initGraph();
+	}
+
+	private static void initGraph() {
 		for (Tile tile : graph.getNodes().values()) {
 			if (tile.isWall()) {
 				continue;
 			}
+			tile.setAdjacentNodes(new HashMap<>());
+			tile.setDistance(Integer.MAX_VALUE);
+			tile.setShortestPath(new LinkedList<>());
 			int y = tile.getY();
 			int x = tile.getX();
 			if (y - 1 > 0) {
@@ -337,7 +329,7 @@ public class Day15Task1Main {
 //print
 //////////////
 
-	private static void printTiles() throws IOException {
+	private static String printTiles() throws IOException {
 		StringBuilder sb = new StringBuilder();
 
 		for (int y = 0; y < grid.length; y++) {
@@ -364,13 +356,14 @@ public class Day15Task1Main {
 				} else {
 					sb.append("E");
 				}
-				sb.append("[" + fighter.getId() + "](" + fighter.getHitpoints() + ")");
+				sb.append("[" + fighter.getId() + "](" + fighter.getHitpoints() + ")<" + fighter.getTile().getY() + ","
+						+ fighter.getTile().getX() + ">");
 				if (it.hasNext()) {
 					sb.append(", ");
 				}
 			}
 			sb.append("\n");
 		}
-		System.out.println(sb.toString());
+		return sb.toString();
 	}
 }

@@ -31,6 +31,7 @@ public class Tile extends Node<Tile> implements Comparable<Tile> {
 		if (this.getX() > that.getX()) {
 			return 1;
 		}
+
 		return 0;
 	}
 
@@ -59,6 +60,8 @@ public class Tile extends Node<Tile> implements Comparable<Tile> {
 		builder.append(getX());
 		builder.append(", isWall=");
 		builder.append(isWall);
+		builder.append(", distance=");
+		builder.append(getDistance());
 		if (fighter != null) {
 			builder.append(", ");
 			builder.append("fighter=");
